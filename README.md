@@ -30,7 +30,7 @@ By following these examples, you'll:
 ### Option 1️⃣: Use the Academy Sandbox (No Setup Required!)
 The fastest way to try these examples is via the KX Academy Sandbox, where kdb+, PyKX, and Jupyter are preinstalled.
 
-1. Launch the sandbox environment at edu.kx.com, enter your email and verify with the code that you receive
+1. Launch the sandbox environment at [edu.kx.com](https://edu.kx.com/), enter your email and verify with the code that you receive
 2. From the sandbox, open a Terminal and clone this repository
     ```
     git clone https://github.com/your-repo/kdb-examples.git  
@@ -40,7 +40,7 @@ The fastest way to try these examples is via the KX Academy Sandbox, where kdb+,
 
 ### Option 2️⃣ : Run Locally
 1. Install kdb+, PyKX, and Jupyter Notebooks:
-    1. Download kdb+ Personal Edition (kx.com/trial-options)
+    1. Download kdb+ Personal Edition [kx.com/trial-options](https://kx.com/kdb-personal-edition-download/)
     2. Install PyKX via pip
     3. Install Jupyter notebooks
 2. Clone this repository
@@ -54,4 +54,4 @@ The fastest way to try these examples is via the KX Academy Sandbox, where kdb+,
 Got questions? Want to connect with other kdb+ developers?
 Join our Slack community 👉 kx.com/slack
 
-🚀 Try kdb+ Personal Edition for free 👉 kx.com/trial-options
+🚀 Try kdb+ Personal Edition for free 👉 [kx.com/trial-options](https://kx.com/kdb-personal-edition-download/)
