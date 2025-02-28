@@ -3,7 +3,7 @@
 This repository provides concise, step-by-step guides designed to help new developers quickly understand and experience the power of kdb+ and the q programming language.
 
 ### Who is this for?
-New developers who may struggle with the initial learning curve of kdb+ and q. These examples will help you quickly get hands-on with ingesting, querying, and analyzing time-series data.
+New developers who may struggle with the initial learning curve of kdb+ and q. These examples will help you quickly get hands-on with ingesting, querying and analyzing time-series data.
 
 ### Why use these examples?
 By following these examples, you'll:
