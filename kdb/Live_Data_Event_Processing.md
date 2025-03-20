@@ -1,0 +1,393 @@
+# Live Data Ingestion and Real-Time Event Processing
+
+Welcome to this tutorial, where we'll explore how to set up a complete streaming workflow in kdb+ by ingesting live data feeds and processing real-time event streams. This tutorial will guide you through building a client-server architecture for ingesting data, appending it dynamically, and performing event-driven analytics on incoming data.
+
+One of the key strengths of kdb+ is its ability to efficiently handle real-time data, making it an ideal choice for applications such as financial market data processing, IoT sensor monitoring, and high-speed telemetry analytics.
+
+By the end of this tutorial, you will understand how to:
+
+*   Establish a real-time data ingestion pipeline
+*   Append incoming data dynamically to an in-memory table
+*   Process real-time event streams and detect patterns
+*   Perform calculations and update statistics dynamically
+*   Implement monitoring and alerting based on data thresholds
+
+
+## 1. Prerequisites
+
+Before starting this tutorial, ensure that you have kdb+ installed on your system. If you haven't installed it yet, you can download it from KX's official website and follow the installation instructions.
+
+To run the code in this tutorial you will need to launch multiple q terminals.
+
+## 2. Setup the Server
+
+A server in kdb+ is simply a process that listens for incoming data from other processes. This is useful in real-world scenarios where multiple sources (e.g., market data providers, sensors, trading engines) send real-time data to a centralized system.
+
+First, let's setup a server process that listens for incoming data and stores it in an in-memory table. Run the following command in a terminal to launch a process specifying the port 1234 with `-q`.
+
+```
+$ q -p 1234
+```
+By setting a port we have exposed this process so other clients can send data to it, the serve is now listening for incoming connections on port 1234.
+
+Next, we can create an empty in-memory table named `t`, which will store our real-time data.
+
+```q
+// Server
+t:([]time:`timestamp$();sym:`$();price:`float$();size:`long$())
+```
+
+Here's a breakdown of what's happening:
+
+*   We define a new table with table notation `([] col1:<values>; col2:<values>: ....)` with empty values `()`:
+    *   `time` :Timestamp of the trade
+    *   `sym` :Symbol
+    *   `price` :Trade price
+    *   `size` :Trade volume
+
+Now the server and table are ready to receive data!
+
+## 3. Setup the Client
+
+The client acts as a data source that continuously sends new trade events to the server. In real-world scenarios, this could be a market data feed, an IoT sensor, or a trading algorithm.
+
+Open a secons q session (client process) and establish a connection to the server using `hopen`:
+
+
+
+```
+$ q
+```
+```q
+// Client
+h:hopen 1234
+```
+
+In the above:
+
+*   `hopen 1234` creates a connection handle (h) to communicate with the server.
+*   If the server is not running, this would return an error.
+
+The client is now connected to the server and ready to send data!
+
+In kdb+, a client can send commands to a server using IPC (`hopen`). One way to add data to a table is by upserting new records into the table stored on the server.
+
+Let's define a function `genData` to generate trade data.
+
+```q
+// Client
+genData:{[n] ([] time:n#.z.P; sym:n?`A`B`C; price:10+n?10f; size:50*1+n?20)}
+```
+
+In the above:
+
+*   `{[]...}` is the syntax of function definition where we can pass any parameter values within `[]`, in our case this is `n` number of rows to create
+*   We define a table with table notation `([] col1:<values>; col2:<values>: ....)` that matches the table schema on our server process
+    *   `time` is populated with timestamps using `#` to select
+    *   `sym` is populated with random symbols selected from a list using `?`
+    *   `price` and trade `size` are randomnly generated
+
+Let's test this works by passing 2 as the parameter `n` and we see that 2 rows of data are been generated.
+
+```q
+// Client 
+genData 2
+```
+    time                          sym price    size
+    -----------------------------------------------
+    2025.02.05D14:58:49.969964340 C   15.1598  650 
+    2025.02.05D14:58:49.969964340 B   14.06664 450 
+    
+
+Great, now we are ready to send this to our server process using the handle `h`.
+
+```q
+// Client 
+sendData:{[n] neg[h] (upsert;`t; genData[n])}
+```
+
+In the above:
+
+*   `neg[h]` Sends the command to the server process, using `neg` to send asynchronously meaning we do not wait for the code to finish execution to proceed
+*   `(x;y;z)` Round brackets and semicolon here allow us to send the message as a list where:
+    *   `upsert` Appends new data to table
+    *   `t` Is the table name on server process to append data to
+    *   `genData[n]` Generates `n` rows of data
+
+Let's run this for 5 rows of data and check the table on the server:
+
+```q
+// Client 
+sendData 5
+```
+```q
+// Server
+select from t
+```
+    time                          sym price    size
+    -----------------------------------------------
+    2025.02.05D15:04:05.137048916 A   12.29662 600 
+    2025.02.05D15:04:05.137048916 B   16.91953 300 
+    2025.02.05D15:04:05.137048916 C   14.70788 350 
+    2025.02.05D15:04:05.137048916 B   16.34672 100 
+    2025.02.05D15:04:05.137048916 C   19.6724  300 
+    
+
+We can see 5 rows of data have been send from the client to the server process!
+
+## 4. Simulate a Continuous Data Feed
+
+In real-world applications, data arrives continuously rather than in batches. Instead of manually sending data, we can automate the process using a timer that simulates an incoming data feed.
+
+kdb+ provides a built-in timer function (`.z.ts`), which executes a given command at a set interval, we define this on the client process.
+
+```q
+// Client 
+.z.ts:{sendData 5+rand 5};
+\t 1000
+```
+In the above:
+
+*   `.z.ts` calls `sendData`, which sends 5-9 new trades to the server
+*   Using `\t` we trigger it to run every 1000 milliseconds (1 second)
+
+We can run a `count` on the table `t` on our server process to see this in actiom , run it a few times to see the number increasing.
+
+```q
+// Server 
+count t
+```
+You should now see a growing table of trades appearing every second.
+
+At this point, the server continuously receives new trade data just like a real-time market data feed!
+
+## 5. Prepare to Receive Metrics
+
+
+Next, let's define an empty `stats` table on the server process that will store calculated metrics such as the average price for each symbol.
+
+```q
+// Server 
+stats:([sym:`symbol$()] avgPrice:`float$(); time:`timestamp$())
+```   
+
+This table will contain:
+
+*   `sym`: The symbol of the trade
+*   `avgPrice`: The average price for each symbol, calculated as new trades come in
+*   `time`: The latest time of the trades
+
+We will be updating this table with aggregated metrics like avgPrice as trades are processed.
+
+```q
+// Server 
+select avgPrice:avg price,last time by sym from t
+```
+
+Let's wrap that in a function using `{}` notation so we can trigger it on demand in the next step.
+
+```q
+// Server 
+calcStats:{`stats set select avgPrice:avg price,last time by sym from t}
+```
+
+In the above:
+
+*   This function calculates the average price (avgPrice) grouped by sym (symbol)
+*   The result is then stored back in the stats table using `set`
+
+Now our server process is ready to add receive our calculated metrics.
+
+## 6. Trigger Real-Time Calculations
+
+To trigger the `calcStats` function every time a new trade record arrives, we can set up the `.z.ps` function.
+
+### What is `.z.ps`?
+
+This function is one of the inbuilt event handlers in kdb+, and it allows you to set up periodic tasks that run automatically in the background when an event occurs - like new data arrives into the system. It is commonly used for logging, monitoring, and access control, but here, we leverage it for real-time metric updates.
+
+```q
+// Server 
+.z.ps:{ calcStats[]; value x}
+```
+    
+
+In the above:
+
+*   `.z.ps` executes the `calcStats` function whenever new data is received, ensuring the `stats` table is updated in real time.
+*   `value x` ensures that the event (in this case, a new trade) continues to propagate in the system
+
+This allows us to process incoming trades in real time and dynamically update the stats table.
+
+To observe the real-time updates, periodically query the stats table and you will see the avgPrice values get updated.
+
+```q
+// Server 
+select from stats
+```
+    
+
+You should see the average price of each symbol (sym) being updated as new data arrives and the time updating. This is real-time event processing in action!
+
+## 7. Implementing Real-Time Alerts
+
+So far, we've set up two processes:
+
+*   Server Process – Stores incoming trade data in table `t` and calculates real-time metrics in `stats`.
+*   Client Process – Simulates market data by sending trade records to the server. Now, we want to introduce a third process – a dedicated alerting process that listens for price movements and triggers alerts when certain thresholds are met.
+
+### Why Do We Need a Separate Alert Process?
+
+While the server could handle alerting, separating this into its own process provides:
+
+*   Better Scalability – Keeps alerting logic independent of data ingestion.
+*   Parallel Processing – Allows monitoring different conditions without overloading the main server.
+*   Flexibility – New alerting rules or subscribers can be added easily.
+
+### Step 1: Set Up the Alerting Process and Logic
+
+We start by launching a third new q process for alerting on port 1235. In a new terminal, start q:
+
+```q
+// Alerts
+$ q -p 1235
+```   
+    
+Then, define the alerting process logic. The alerting process will receive trade data and monitor prices.
+
+```q
+// Alerts
+.z.ps:{price:(max x`price);if[price > 19; show "ALERT: Price ", string[price], " exceeded 19"]}
+```
+    
+
+In the above:
+
+*   `.z.ps` automatically triggers whenever the process receives data
+*   It checks the highest price from incoming records
+*   If the price exceeds 19, it prints an alert message using `show`
+
+### Step 2: Modify the Client Process to Send Data to Both Server and Alerts Process
+
+Our client process currently only sends trade data to the main server. We now modify it to also send data to the alerting process on port 1235.
+
+In the client process, connect to both the server (port 1234) and the alerts process (port 1235):
+
+```q
+// Client
+hServer: hopen 1234;
+hAlerts: hopen 1235
+```
+    
+
+Adjust `sendData` so that every trade update is sent to both the server and the alerting process:
+
+```q
+// Client
+sendData:{[n] data:genData[n]; neg[hServer] (upsert; `t; data);neg[hAlerts] (data)}
+```
+
+In the above:
+
+*   Generate n trade records using genData\[n\]
+*   Stores the last message `data` for reference.
+*   Sends `data` to both the server (hServer) and saves to table `t`
+*   Sends `data` to the alerting process (hAlerts)
+
+Now, every incoming trade will be processed by both systems.
+
+As long as the timer is still running on the client process you should start to see ALERTS being published on the alerts process anytime a price exceeds 19.
+
+    "ALERT: Price 19.59409 exceeded 19"
+    "ALERT: Price 19.4937 exceeded 19"
+    "ALERT: Price 19.30361 exceeded 19"
+    
+
+### Step 3: Logging Alerts
+
+One more step we could take is to send these alerts to a logfile instead of printing them in the process. This is more realisttic to how a real life system would handle notifications.
+
+Let's assume we want to create a new file to start writing a log to, we can create this file by opening a handle to it with `hopen`:
+
+```q
+// Alerts
+myFileHandle: hopen `:myLog.txt
+```    
+
+Using `key` we can see this is in our current directory now as it returns the path so we know it exists.
+
+```q
+// Alerts
+key `:myLog.txt
+```
+    
+
+Next, we can adjust `z.ps` in our alerts process to write to this file instead of printing.
+
+```q
+// Alerts
+.z.ps:{price:(max x`price);if[price > 19; neg[myFileHandle]("ALERT: Price ", string[price], " exceeded 19")]}
+```
+    
+
+After defining the above you should notice alerts are no longer printing out in the process. We can use the `read0` function to check the logfile.
+
+```q
+// Alerts
+read0 `:myLog.txt
+```
+    "ALERT: Price 19.72533 exceeded 19"
+    "ALERT: Price 19.74431 exceeded 19"
+    "ALERT: Price 19.56339 exceeded 19"
+    "ALERT: Price 19.8689 exceeded 19"
+    "ALERT: Price 19.58704 exceeded 19"
+    "ALERT: Price 19.68696 exceeded 19"
+    "ALERT: Price 19.63594 exceeded 19"
+    
+
+When we run this we can see our logfile now contains the alerts!
+
+## 8. Cleanup
+
+Long-running timers or open connections can cause unintended issues, such as:
+
+*   Performance slowdowns (if `.z.ts` keeps running in the background)
+*   Connection leaks (if clients don’t properly close hopen connections)
+
+It is good practice therefore to stop the timer on the client and close the connection when you are finished with this tutorial:
+
+```q
+// Client
+\t 0
+```
+```q
+// Client
+hclose hAlerts;
+hclose hServer
+```
+    
+
+*   `\t 0` disables `.z.ts`, stopping the automatic data generation
+*   `hclose` closes the connection so the client can no longer communicate with the server process.
+
+Next Steps
+----------
+
+At this stage, we have successfully set up:
+
+*   A main server process (port 1234) handling trade data and real-time metrics
+*   A client process simulating real-time trade data
+*   A separate alerting process (port 1235) monitoring price movements
+
+The tutorial we have built here is designed to demonstrate just how powerful and elegant q/kdb+ is, even in its simplest form. In real life a professional kdb+ trading system would most likely make use of tick architecture, which:
+
+*   Logs all incoming data to disk for durability.
+*   Sends updates to multiple subscribers (real-time databases, analytics engines)
+*   Manages high-frequency streams efficiently
+
+To learn more about real-world kdb+ architecture, check out these resources:
+
+*   Free KX Course: [kdb+ Architecture](#https://learninghub.kx.com/courses/kdb-architecture/) A structured introduction to how kdb+ handles real-time and historical data.
+*   GitHub: [kdb-tick](#https://github.com/KxSystems/kdb-tick) The official repository for tick.q, a production-grade framework for real-time data ingestion, storage, and analytics.
+
+This is how real-world trading systems ingest, process, and analyze billions of data points every day and now you have the foundation to build your own!
