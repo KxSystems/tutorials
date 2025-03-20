@@ -13,10 +13,10 @@ By following these tutorials, you'll:
 - Efficient querying and filtering
 - Using time-series functions and joins in q
 
-### 2️⃣ Ingesting and Processing Live Data Feeds 
+### 2️⃣ Live_Data_Event_Processing.md
 - Real-time data ingestion 
 - Simulate live data streaming
-- Using IPC for client server communication to capture real-time data
+- Process real-time event streams and detect patterns
 
 ## 🤝 Join the Community!
 Got questions? Want to connect with other kdb+ developers?
