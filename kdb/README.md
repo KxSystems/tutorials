@@ -1,6 +1,6 @@
 # 🚀 kdb+ Tutorials
 
-This repository provides concise, step-by-step tutorials designed to help  developers quickly understand and experience the power of kdb+ and the q programming language.
+This folder contains concise, step-by-step tutorials designed to help  developers quickly understand and experience the power of kdb+ and the q programming language.
 l
 By following these tutorials, you'll:
 - Experience the speed & efficiency of kdb+ in handling large datasets.

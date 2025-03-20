@@ -18,24 +18,29 @@ Before starting this tutorial, ensure that you have kdb+ installed on your syste
 
 ## 2. Create the Time Series Dataset
 
-Let’s start by creating a sample dataset to work with. This dataset will simulate trade data over a period of time, with random values for price, size, and symbols. We’ll generate 20 million rows of trade data.
+Let’s start by creating a sample dataset to work with. This dataset will simulate trade data over a period of time, with random values for price, size, and symbols.
 
+First download the the [stocks.txt](stocks.txt) file locally and make sure the path below points to it.
 
 ```q
-n:20000000
-syms:100?`$read0 `:stocks.txt
-day:2025.01.01
+syms:100?`$read0 `:stocks.txt;
+```
+Above we are selecting 100 random stock symbols from an external text file containing a list of real stock tickers. 
+
+Now we can generate the dataset:
+
+```q
+n:20000000;
+day:2025.01.01;
 trade:([] 
     time:asc (`timestamp$day) + n?24:00:00;     
     sym:n?syms;                                 
     price:n?100f;                              
-    size:n?1000                       
- )
+    size:n?1000)
 ```
 
 Here's a breakdown of what's happening:
 - `n: 2000000` sets the number of rows we want to generate
-- `syms` Selects 100 random stock symbols from an external text file containing a list of real stock tickers.
 - We define a new table with table notation `([] col1:<values>; col2:<values>: ...)`
 - We use `?` to generate random values for 4 columns:
     - `time` is populated with timestamps starting from midnight and increasing across a 24-hour period, with a random offset to simulate a spread of trades.
@@ -44,21 +49,12 @@ Here's a breakdown of what's happening:
 
 This table is now available in memory to investigate and query. Let's take a quick look at the row [`count`](#https://code.kx.com/q/ref/count/), schema details with [`meta`](#https://code.kx.com/q/ref/meta/) and first 10 rows using [`sublist`](#https://code.kx.com/q/ref/sublist/).
 
-These simple commands are essential when exploring your data quickly in kdb+/q.
-
-
-```python
-count trade              // get row count
+```q
+count trade
 ```
-
-    20000000
-
-
-
-```python
-meta trade               // get table schema details - datatypes, column names etc
+```q
+meta trade
 ```
-
     c    | t f a
     -----| -----
     time | p   s
@@ -74,8 +70,8 @@ The following columns are produced when we run `meta`:
 - a: <a href="https://code.kx.com/q/ref/set-attribute/" target="_blank">attributes</a> (modifiers applied for performance optimisation)
 
 
-```python
-10 sublist trade         // get first 10 rows 
+```q
+10 sublist trade
 ```
 
     time                          sym   price    size
@@ -98,44 +94,39 @@ Once the data is generated, you’ll likely want to save it to disk for persiste
 
 Because we want the ability to scale, partitioning by date will be a good approach for this dataset. Without partitioning, queries that span large time periods would require scanning entire datasets, which can be very slow and resource-intensive. By partitioning data, kdb+ can limit the query scope to the relevant partitions, significantly speeding up the process.
 
+First let's define some filepaths to make things easier to manage, you can change your `homeDir` to wherever you wish to save your data.
+```q
+homeDir:getenv[`HOME];
+dbDir:homeDir,"/data";
+dbPath:hsym `$dbDir;
+```
+In the above:
+- <a href="https://code.kx.com/q/ref/getenv/" target="_blank">getenv</a>: Get the value of an environment variable, in our case `HOME`  
+- <a href="https://code.kx.com/q/ref/hsym/" target="_blank">hsym</a>: This function prefixes the directory location with a colon to make it a file handle
+
+Then we set the compression parameters using [.z.zd](#https://code.kx.com/q/ref/dotz/#zzd-compressionencryption-defaults).
+
+```q
+.z.zd:(17;2;6)
+```
+
 To partition by date we can use the inbuilt function [`.Q.dpft`](#https://code.kx.com/q/ref/dotq/#dpft-save-table) to save the data to disk - this may take ~20 seconds to complete.
-
-
-
-```python
-homeDir:getenv[`HOME]                   // Get the home directory for edu.kx.com
-dbDir:homeDir,"/data"                   // Define database location as string
-dbPath:hsym `$dbDir                     // Database location as hsym for file I/O
+```q
+.Q.dpft[dbPath;day;`sym;`trade]
 ```
-
-
-```python
-.z.zd:(17;2;6)                          // Set compression level
-```
-
-
-```python
-.Q.dpft[dbPath;day;`sym;`trade]         // Save data as a partitioned database
-```
-
-    trade
-
 
 In the above:
-- <a href="https://code.kx.com/q/ref/hsym/" target="_blank">hsym</a>: This function prefixes the directory location with a colon to make it a file handle
-- <a href="https://code.kx.com/q/ref/dotz/#zzd-compressionencryption-defaults" target="_blank">.z.d</a>: This function sets the compression parameters.
 - <a href="https://code.kx.com/q/ref/dotq/#dpft-save-table" target="_blank">.Q.dpft[d;p;f;t]</a>: This command saves data to a <b>(d)</b>atabase location, targeting a particular <b>(p)</b>artition and indexes the data on a chosen <b>(f)</b>ield for the specified <b>(t)</b>able.
 
-One persisted, the table name is returned. We can test its worked as expected by deleting the `trade` table we have in memory and reloading the database from disk.
+Once persisted, the table name is returned. We can test its worked as expected by deleting the `trade` table we have in memory and reloading the database from disk.
 
 
-```python
-delete trade from `.                     // Delete in memory table
-system"l ",dbDir                         // Load the partitioned database
-meta trade                               // Check it exists
+```q
+delete trade from `.;           
+system"l ",dbDir;    
+meta trade              
 ```
 
-    .
     c    | t f a
     -----| -----
     date | d    
@@ -159,76 +150,45 @@ To learn more about these types and when to choose which <a href="https://code.k
 
 In this section, we scale our dataset to 1 billion rows by duplicating an existing partition across multiple days. This approach ensures we have sufficient data for performance testing and analytics validation.
 
-Before making copies, we check the disk space usage to ensure enough storage is available. The below system command displays the available and used disk space in megabytes (~9.6G), helping us monitor the impact of our operations.
+Before making copies, we check the disk space usage to ensure enough storage is available. The below system command displays the available and used disk space in megabytes, helping us monitor the impact of our operations.
 
-
-```python
+```q
 system"df -mh ."
 ```
 
-    "Filesystem      Size  Used Avail Use% Mounted on"
-    "/dev/sdc        9.8G  183M  9.6G   2% /home/jovyan"
+> **Note on Disk Space**: To create 1 Billion rows this will require ~10GB of data space. If you have less than 10GB available, please reduce the days below otherwise you will run out of space.
+
+Let's generate a list of new dates and copy the existing partition (2025.01.01) to these new dates. This may take ~40 seconds to complete.
 
 
-Next, we generate a list of new dates and copy the existing partition (2025.01.01) to these new dates. Here, we create 49 new partitions by copying the original partition for each additional day. This may take ~40 seconds to complete.
-
-
-```python
-days:day +1 +til 49;                                         // Generate 49 additional days  
-cmds: "cp -r ../data/2025.01.01 ../data/",/:string[days];    // Create shell commands to execute
-\t system each cmds                                          // Execute shell commands to copy partitions  
+```q
+days:day +1 +til 49;
+cmds: "cp -r ../data/2025.01.01 ../data/",/:string[days];
+system each cmds  
 ```
-
-    55011
+In the above:
+- Using [`til`](#https://code.kx.com/q/ref/til/)we generate 49 additional days = 10GB of data on disk
+- Create shell commands to execute, we use the [, join](#https://code.kx.com/q/ref/join/) operator here
+- Execute shell commands to copy partitions using [each](#https://code.kx.com/q/wp/iterators/#each-each-parallel) to iterate over all the days
 
 
 Once the partitions are created, we verify how much disk space was consumed and check the new partitions exist.
 
 
-```python
-system"df -mh ."
+```q
+system"df -mh .";
 system"ls -la ../data"
 ```
-
-    "Filesystem      Size  Used Avail Use% Mounted on"
-    "/dev/sdc        9.8G  8.9G  893M  92% /home/jovyan"
-    "total 216"
-    "drwxrwsr-x 53 jovyan users 4096 Mar  7 12:18 ."
-    "drwxrwsr-x 10 root   users 4096 Mar  7 12:11 .."
-    "drwxr-sr-x  2 jovyan users 4096 Mar  7 12:05 .ipynb_checkpoints"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.01"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.02"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.03"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.04"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.05"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.06"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.07"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.08"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.09"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.10"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.11"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.12"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.13"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.14"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:17 2025.01.15"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:18 2025.01.16"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:18 2025.01.17"
-    "drwxr-sr-x  3 jovyan users 4096 Mar  7 12:18 2025.01.18"
-    ..
 
 
 Finially since kdb+ manages partitioned data at the filesystem level, we must reload the database to reflect the newly added partitions.
 
 
-```python
-delete trade from `.                               // Delete in memory table
-system"l ",dbDir                                   // Load the partitioned database
-count trade                                        // 1B Rows 
-select count i by date from trade                  // Select number of records per date within the trade table
+```q
+delete trade from `.;
+system"l ",dbDir ;
+select count i by date from trade
 ```
-
-    .
-    1000000000
     date      | x       
     ----------| --------
     2025.01.01| 20000000
@@ -263,13 +223,9 @@ Now that we have 1 Billion rows of data, let's dive into some basic time-series 
 Let's find a symbol to analyse from the randomly generated list we created earlier and then run our query.
 
 
-```python
-symbol:first syms
-select sum size 
-    by date,
-       60 xbar time.minute 
-    from trade 
-    where sym=symbol
+```q
+symbol:first syms;
+select sum size by date,60 xbar time.minute from trade where sym=symbol
 ```
 
     date       minute| size   
@@ -313,12 +269,8 @@ In this tutorial:
 ### Weighted Average Price and Last Trade Price Every 15 Minutes 
 
 
-```python
-select lastPx:last price, 
-       vwapPx:size wavg price
- by date, 15 xbar time.minute 
- from trade 
- where sym=symbol
+```q
+select lastPx:last price, vwapPx:size wavg price by date, 15 xbar time.minute from trade where sym=symbol
 ```
 
     date       minute| lastPx   vwapPx  
@@ -353,18 +305,12 @@ In finance, volume-weighted averages give a more accurate reflection of a stock�
 Let's time this anayltic with `\t` to see how long it takes in milliseconds to crunch through 1 Billion records.
 
 
-```python
-\t select lastPx:last price, 
-       vwapPx:size wavg price
-   by date, 15 xbar time.minute 
-   from trade 
-   where sym=symbol
+```q
+\t select lastPx:last price, vwapPx:size wavg price by date, 15 xbar time.minute from trade where sym=symbol
 ```
 
-    536
 
-
-The query processed 1 Billion records in sub second time, efficiently aggregating last price (`lastPx`) and volume-weighted-average price (`vwapPx`) for these trades. The use of `by date, 15 xbar time.minute` optimized the grouping, making the computation fast. This demonstrates the power of kdb+/q for high-speed time-series analytics.
+The query processed 1 Billion records in 1-2 seconda, efficiently aggregating last price (`lastPx`) and volume-weighted-average price (`vwapPx`) for these trades. The use of `by date, 15 xbar time.minute` optimized the grouping, making the computation fast. This demonstrates the power of kdb+/q for high-speed time-series analytics.
 
  ### SQL Comparison
 
@@ -410,25 +356,23 @@ In time-series data, we often deal with information arriving at different interv
 - Trade and Quote Data: A trade occurs at a given time, and we want to match it with the latest available quote.
 - Sensor Data: A sensor records temperature every second, while another logs environmental data every 10 seconds—matching the closest reading is crucial.
 
-> **📌** kdb+/q optimizes asof joins to handle large datasets efficiently, making it a key tool in real-time analytics and historical data analysis.
 
 #### Generate synthetic quote data for one day
 
 
-```python
-n:2000000
+```q
+n:2000000;
 quote:([] 
-    time:asc (`timestamp$day) + n?86400000000000;  // Random timestamps
-    sym:n?syms;                                    // Random stock tickers
-    bid:n?100f;                                    // Random bid prices
-    ask:n?100f                                     // Random ask prices
- )
+    time:asc (`timestamp$day) + n?86400000000000;
+    sym:n?syms;
+    bid:n?100f;
+    ask:n?100f)
 ```
 
 As we're keeping this table in memory we need to perform one extra step before joining, we apply the parted (p#) attribute to the sym column of the quote table. Our trade table on disk already has the parted attribute on the sym column, we see this in the column `a` when we run `meta trade`.
 
 
-```python
+```q
 meta trade
 ```
 
@@ -444,9 +388,9 @@ meta trade
 This is crucial for optimizing asof joins, as it ensures faster lookups when performing symbol-based joins. Before applying parted to quote, we first sort the table by sym using [`xasc`](#https://code.kx.com/q/ref/asc/), as the parted attribute requires the column to be sorted for it to work efficiently.
 
 
-```python
-quote:`sym xasc quote                  / Sorting sym in ascending order
-quote:update `p#sym from quote         / Apply the parted attruibute on sym
+```q
+quote:`sym xasc quote;
+quote:update `p#sym from quote
 ```
 
 In the above:
@@ -457,11 +401,8 @@ In the above:
 
 We now match each trade with the most recent available quote for todays date using [`aj`](#https://code.kx.com/q/ref/aj/).
 
-
-
-```python
-tradequote:aj[`sym`time; select from trade where date=day; quote]
-tradequote
+```q
+aj[`sym`time; select from trade where date=day; quote]
 ```
 
     date       sym  time                          price    size bid      ask     
@@ -496,7 +437,4 @@ In the above:
 
 This approach ensures that for every trade, we have the best available quote information, allowing traders to analyze trade execution relative to the prevailing bid/ask spread at the time.
 
-## Next Steps
-
-Try [Tutorial2](Tutorial2.html) on Real-Time Ingestion & Streaming Analytics.
 
