@@ -1,4 +1,4 @@
-# 🚀 kdb+ Tutorials
+# 🚀 PyKX Tutorials
 
 This folder contains concise, step-by-step tutorials designed to help  developers quickly understand and experience the power of PyKX and its interactions with kdb+/q.
 
