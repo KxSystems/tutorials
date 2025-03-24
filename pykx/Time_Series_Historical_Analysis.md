@@ -59,7 +59,6 @@ Here's a breakdown of what's happening:
 - `n = 2000000` sets the number of rows we want to generate
 - We define a new table using `kx.Table` with syntax similar to that used by Pandas
 - The function `kx.random.random` is then used to create `n` randomly generated
-- We use `?` to generate random values for 4 columns:
     - `time` is populated with timestamps starting from midnight and increasing across a 24-hour period, with a random offset to simulate a spread of trades. These are then sorted in ascending order using `kx.q.asc`.
     - `sym` is populated with random symbols, selected from a list.
     - `price` and trade `size` are randomly generated
@@ -77,10 +76,31 @@ len(trade)
 ```python
 trade.dtypes
 ```
-
+    pykx.Table(pykx.q('
+    columns datatypes
+    --------------------------
+    time    "kx.TimestampAtom"
+    sym     "kx.SymbolAtom"
+    price   "kx.FloatAtom"
+    size    "kx.LongAtom"
+    '))
 ```python
 trade.head(10)
 ```
+    pykx.Table(pykx.q('
+    time                          sym   price    size
+    -------------------------------------------------
+    2025.01.01D00:00:00.000000000 DVAX  9.225738 63
+    2025.01.01D00:00:00.000000000 BAYAR 82.30603 913
+    2025.01.01D00:00:00.000000000 YYGH  72.3243  548
+    2025.01.01D00:00:00.000000000 SOXQ  77.90728 282
+    2025.01.01D00:00:00.000000000 FWONA 77.26276 168
+    2025.01.01D00:00:00.000000000 BWEN  18.88928 653
+    2025.01.01D00:00:00.000000000 QABA  45.66406 776
+    2025.01.01D00:00:00.000000000 SSSSL 42.81835 19
+    2025.01.01D00:00:00.000000000 FV    52.86591 399
+    2025.01.01D00:00:00.000000000 PRCT  12.54231 534
+    '))
 
 ## 3.  Save Data to Disk
 
@@ -118,6 +138,31 @@ Accessing the table for query via Python can be done by accessing the named tabl
 ```python
 database.trade
 ```
+    pykx.PartitionedTable(pykx.q('
+    date       sym   time                          price    size
+    ------------------------------------------------------------
+    2025.01.01 DVAX  2025.01.01D00:00:00.000000000 9.225738 63
+    2025.01.01 BAYAR 2025.01.01D00:00:00.000000000 82.30603 913
+    2025.01.01 YYGH  2025.01.01D00:00:00.000000000 72.3243  548
+    2025.01.01 SOXQ  2025.01.01D00:00:00.000000000 77.90728 282
+    2025.01.01 FWONA 2025.01.01D00:00:00.000000000 77.26276 168
+    2025.01.01 BWEN  2025.01.01D00:00:00.000000000 18.88928 653
+    2025.01.01 QABA  2025.01.01D00:00:00.000000000 45.66406 776
+    2025.01.01 SSSSL 2025.01.01D00:00:00.000000000 42.81835 19
+    2025.01.01 FV    2025.01.01D00:00:00.000000000 52.86591 399
+    2025.01.01 PRCT  2025.01.01D00:00:00.000000000 12.54231 534
+    2025.01.01 FID   2025.01.01D00:00:00.000000000 65.39818 9
+    2025.01.01 STI   2025.01.01D00:00:00.000000000 92.57709 622
+    2025.01.01 ALDF  2025.01.01D00:00:00.000000000 1.183345 812
+    2025.01.01 MDIA  2025.01.01D00:00:00.000000000 70.1431  886
+    2025.01.01 NCPL  2025.01.01D00:00:00.000000000 65.53554 367
+    2025.01.01 FV    2025.01.01D00:00:00.000000000 1.988985 910
+    2025.01.01 NEGG  2025.01.01D00:00:00.000000000 39.48223 803
+    2025.01.01 NBTX  2025.01.01D00:00:00.000000000 15.49415 309
+    2025.01.01 KPLT  2025.01.01D00:00:00.000000000 11.61893 603
+    2025.01.01 BSET  2025.01.01D00:00:00.000000000 16.13565 810
+    ..
+    '))
 
 PyKX and kdb+ offers a number of different methods to store tables which will allow for efficient storage and querying for different sized datasets: flat, splayed, partitioned and segmented.
 
@@ -177,33 +222,32 @@ database.trade.select(
 
 This should return a table that looks as follows:
 
-```python
-pykx.KeyedTable(pykx.q('
-date      | x
-----------| --------
-2025.01.01| 20000000
-2025.01.02| 20000000
-2025.01.03| 20000000
-2025.01.04| 20000000
-2025.01.05| 20000000
-2025.01.06| 20000000
-2025.01.07| 20000000
-2025.01.08| 20000000
-2025.01.09| 20000000
-2025.01.10| 20000000
-2025.01.11| 20000000
-2025.01.12| 20000000
-2025.01.13| 20000000
-2025.01.14| 20000000
-2025.01.15| 20000000
-2025.01.16| 20000000
-2025.01.17| 20000000
-2025.01.18| 20000000
-2025.01.19| 20000000
-2025.01.20| 20000000
-..
-'))
-```
+    pykx.KeyedTable(pykx.q('
+    date      | x
+    ----------| --------
+    2025.01.01| 20000000
+    2025.01.02| 20000000
+    2025.01.03| 20000000
+    2025.01.04| 20000000
+    2025.01.05| 20000000
+    2025.01.06| 20000000
+    2025.01.07| 20000000
+    2025.01.08| 20000000
+    2025.01.09| 20000000
+    2025.01.10| 20000000
+    2025.01.11| 20000000
+    2025.01.12| 20000000
+    2025.01.13| 20000000
+    2025.01.14| 20000000
+    2025.01.15| 20000000
+    2025.01.16| 20000000
+    2025.01.17| 20000000
+    2025.01.18| 20000000
+    2025.01.19| 20000000
+    2025.01.20| 20000000
+    ..
+    '))
+
 
 
 ## 5. Time Series Analytics
@@ -223,6 +267,31 @@ database.trade.select(
     where = kx.Column('sym') == symbol
 )
 ```
+    pykx.KeyedTable(pykx.q('
+    date       time | size
+    ----------------| -------
+    2025.01.02 00:00| 4161526
+    2025.01.02 01:00| 4291162
+    2025.01.02 02:00| 4251908
+    2025.01.02 03:00| 4194820
+    2025.01.02 04:00| 4143345
+    2025.01.02 05:00| 4200231
+    2025.01.02 06:00| 4175393
+    2025.01.02 07:00| 4121591
+    2025.01.02 08:00| 4193462
+    2025.01.02 09:00| 4167368
+    2025.01.02 10:00| 4199019
+    2025.01.02 11:00| 4230971
+    2025.01.02 12:00| 4201560
+    2025.01.02 13:00| 4150440
+    2025.01.02 14:00| 4126077
+    2025.01.02 15:00| 4119997
+    2025.01.02 16:00| 4175387
+    2025.01.02 17:00| 4124853
+    2025.01.02 18:00| 4193938
+    2025.01.02 19:00| 4142369
+    ..
+    '))
 
 #### PyKX querying & Temporal Arithmetic
 
@@ -247,23 +316,21 @@ database.trade.select(
     where = kx.Column('sym') == symbol
 )
 ```
-This should return a result similar to the following:
 
-```python
-pykx.KeyedTable(pykx.q('
-date       minute| lastPx   vwapPx
------------------| -----------------
-2025.01.01 00:00 | 12.02315 49.7027
-2025.01.01 00:15 | 89.32436 50.23902
-2025.01.01 00:30 | 69.63196 49.84172
-2025.01.01 00:45 | 45.60034 49.13936
-2025.01.01 01:00 | 76.59549 49.59122
-2025.01.01 01:15 | 72.53248 51.27943
-2025.01.01 01:30 | 6.074879 49.90891
-2025.01.01 01:45 | 64.48105 50.05766
-..
-'))
-```
+    pykx.KeyedTable(pykx.q('
+    date       minute| lastPx   vwapPx
+    -----------------| -----------------
+    2025.01.01 00:00 | 12.02315 49.7027
+    2025.01.01 00:15 | 89.32436 50.23902
+    2025.01.01 00:30 | 69.63196 49.84172
+    2025.01.01 00:45 | 45.60034 49.13936
+    2025.01.01 01:00 | 76.59549 49.59122
+    2025.01.01 01:15 | 72.53248 51.27943
+    2025.01.01 01:30 | 6.074879 49.90891
+    2025.01.01 01:45 | 64.48105 50.05766
+    ..
+    '))
+
 
 This is similar to the previous analytic, but this time we make use of the built in `wavg` function to find out the weighted average over time intervals.
 
@@ -338,17 +405,14 @@ As we're keeping this table in memory we need to perform one extra step before j
 kx.q.meta(database.trade)
 ```
 
-Which returns:
+    c    | t f a
+    -----| -----
+    date | d
+    sym  | s   p
+    time | p
+    price| f
+    size | j
 
-```python
-c    | t f a
------| -----
-date | d
-sym  | s   p
-time | p
-price| f
-size | j
-```
 
 This is crucial for optimizing asof joins, as it ensures faster lookups when performing symbol-based joins. Before applying parted to quote, we first sort the table by sym using [`kx.q.xasc`](#https://code.kx.com/pykx/3.1/api/pykx-execution/q.html#xasc), as the parted attribute requires the column to be sorted for it to work efficiently.
 
@@ -371,19 +435,17 @@ subtrade = database.trade.select(where=kx.Column('date') == day)
 subtrade.merge_asof(quote, ['sym', 'time'])
 ```
 
-This will return a result similar to the following:
 
-```python
-pykx.Table(pykx.q('
-date       time                          sym   price    size bid      ask
--------------------------------------------------------------------------
-2025.01.01 2025.01.01D00:00:00.000000000 DVAX  9.225738 63   83.49145 853
-2025.01.01 2025.01.01D00:00:00.000000000 BAYAR 82.30603 913  78.34594 106
-2025.01.01 2025.01.01D00:00:00.000000000 YYGH  72.3243  548  52.96264 342
-2025.01.01 2025.01.01D00:00:00.000000000 SOXQ  77.90728 282  91.99564 670
-..
-'))
-```
+    pykx.Table(pykx.q('
+    date       time                          sym   price    size bid      ask
+    -------------------------------------------------------------------------
+    2025.01.01 2025.01.01D00:00:00.000000000 DVAX  9.225738 63   83.49145 853
+    2025.01.01 2025.01.01D00:00:00.000000000 BAYAR 82.30603 913  78.34594 106
+    2025.01.01 2025.01.01D00:00:00.000000000 YYGH  72.3243  548  52.96264 342
+    2025.01.01 2025.01.01D00:00:00.000000000 SOXQ  77.90728 282  91.99564 670
+    ..
+    '))
+
 
 
 In the above:
@@ -392,3 +454,4 @@ In the above:
 - We can see this means the first few `bid` and `ask` values are empty because there was no quote data prior to those trades.
 
 This approach ensures that for every trade, we have the best available quote information, allowing traders to analyze trade execution relative to the prevailing bid/ask spread at the time.
+~                                                                                                                                                                                            
