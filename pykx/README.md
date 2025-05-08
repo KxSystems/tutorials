@@ -14,11 +14,6 @@ By following these tutorials, you'll:
 - Efficient querying and filtering
 - Using time-series functions and joins via PyKX
 
-### 2️⃣ Integrate_With_Kdb.md
-- Connect to a kdb+ process
-- Query data from an existing system
-- Publish data to a kdb+ process
-
 ## 🤝 Join the Community!
 Got questions? Want to connect with other PyKX users or kdb+ developers?
 Join our Slack community 👉 kx.com/slack
