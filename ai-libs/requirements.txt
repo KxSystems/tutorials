@@ -1,0 +1,4 @@
+torch>=1.13.0,<3.0
+sentence-transformers>=2.2.2
+yfinance==0.2.58
+curl-cffi>=0.5.6
