@@ -36,6 +36,8 @@ Next download the the [stocks.txt](stocks.txt) file locally and make sure the pa
 ```python
 with open('stocks.txt', 'r') as f:
     py_symbols = f.read().split('\n')
+```
+```python
 syms = kx.random.random(100, py_symbols)
 ```
 
@@ -105,7 +107,6 @@ trade.head(10)
 ### SQL Support 
 SQL querying is supported in the latest version of PyKX, making it easier to work with familiar SQL syntax directly. SQL can be invoked by running:
 ```python
-kx.q(".s.init[]")
 kx.q.sql("SELECT * FROM $1 LIMIT 10", trade)
 ```
 For more information see [SQL documentation](https://code.kx.com/insights/core/sql.html#running-sql).
