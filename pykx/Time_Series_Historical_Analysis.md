@@ -16,7 +16,7 @@ Here, we'll cover:
 
 ## 1. Prerequisites
 
-Before starting this tutorial, ensure that you have PyKX installed on your system. If you haven't installed it yet, you can follow the installation guide at https://code.kx.com/pykx/3.1/getting-started/installing.html.
+Before starting this tutorial, ensure that you have PyKX installed on your system. If you haven't installed it yet, you can follow the installation guide at https://code.kx.com/pykx/3.1/getting-started/installing.html. Note, this tutorial requires PyKX version 3.0.0 or newer.
 
 ## 2. Create the Time Series Dataset
 
@@ -73,6 +73,9 @@ This table is now available in memory to investigate and query. Let's take a qui
 
 ```python
 len(trade)
+```
+```python
+2000000
 ```
 
 ```python
