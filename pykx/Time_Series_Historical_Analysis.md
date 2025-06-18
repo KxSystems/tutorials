@@ -29,6 +29,8 @@ import pykx as kx
 from datetime import date
 import numpy as np
 import os
+import psutil
+from pathlib import Path
 ```
 
 Next download the the [stocks.txt](stocks.txt) file locally and make sure the path below points to it.
@@ -49,12 +51,12 @@ Now we can generate a time-series dataset:
 n = 20000000;
 day = date(2025, 1, 1);
 trade = kx.Table(data = {
-     'time': kx.q.asc(day + kx.random.random(n, kx.q('24:00:00'))),
+     'time': day + kx.random.random(n, kx.q('24:00:00')),
      'sym': kx.random.random(n, syms),
      'price': kx.random.random(n, 100.0),
      'size': kx.random.random(n, 1000)
     }
-)
+).sort_values('time')
 ```
 
 Here's a breakdown of what's happening:
@@ -123,8 +125,8 @@ Because we want the ability to scale, partitioning by date will be a good approa
 First let's define some filepaths to make things easier to manage, you can change your `homeDir` to wherever you wish to save your data.
 
 ```python
-home_dir = os.getenv('HOME')
-db_dir = home_dir + '/data'
+home_dir = Path.home()
+db_dir = home_dir / 'data'
 ```
 
 Now that we have access to the location you can initialize a `kx.DB` class object which you can use to interact with your database.
@@ -193,7 +195,7 @@ In this section, we scale our dataset to 1 billion rows by duplicating an existi
 Before making copies, we check the disk space usage to ensure enough storage is available. The below system command displays the available and used disk space in megabytes, helping us monitor the impact of our operations.
 
 ```python
-os.system('df -mh .')
+psutil.disk_usage('.')
 ```
 
 > **Note on Disk Space**: To create 1 Billion rows this will require ~10GB of data space. If you have less than 10GB available, please reduce the days below otherwise you will run out of space.
@@ -218,8 +220,8 @@ Once the partitions are created, we verify how much disk space was consumed and 
 
 
 ```python
-os.system('df -mh .')
-os.system('ls -la ' + db_dir)
+psutil.disk_usage('.')
+for item in db_dir.iterdir():print(item)
 ```
 
 To validate the amount of data within our loaded database we can run a `select` query on the data
@@ -402,12 +404,12 @@ In time-series data, we often deal with information arriving at different interv
 
 ```q
 quote = kx.Table(data = {
-     'time': kx.q.asc(day + kx.random.random(n, kx.q('24:00:00'))),
+     'time': day + kx.random.random(n, kx.q('24:00:00')),
      'sym': kx.random.random(n, syms),
      'bid': kx.random.random(n, 100.0),
      'ask': kx.random.random(n, 1000)
     }
-)
+).sort_values('time')
 ```
 
 As we're keeping this table in memory we need to perform one extra step before joining, we apply the parted attribute to the sym column of the quote table. Our trade table on disk already has the parted attribute on the sym column, we see this in the column `a` when we run the following:
