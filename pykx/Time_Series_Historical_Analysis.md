@@ -220,7 +220,7 @@ Once the partitions are created, we verify how much disk space was consumed and 
 
 
 ```python
-psutil.disk_usage('.')
+print(psutil.disk_usage('.'))
 for item in db_dir.iterdir():print(item)
 ```
 
