@@ -10,7 +10,7 @@ git clone https://github.com/KxSystems/tutorials.git
 cd tutorials
 ```
 
-Make sure you have [KDB-X](https://kx.com/products/) installed.
+Make sure you have [KDB-X](https://kdb-x.kx.com/sign-in) installed.
 
 ## 📁 Structure 
 
