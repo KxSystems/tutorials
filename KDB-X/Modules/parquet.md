@@ -18,7 +18,7 @@ Requires KDB-X to be installed, you can sign up [here](https://developer.kx.com/
 2. Download the dataset from [Kaggle](https://www.kaggle.com/datasets/zahinawosaf/forex-tick-data) and extract the files
 ```
 #!/bin/bash 
-curl -L -o ~/parquet/forex-tick-data.zip\ https://www.kaggle.com/api/v1/datasets/download/zahinawosaf/forex-tick-data 
+curl -L -o ~/parquet/forex-tick-data.zip https://www.kaggle.com/api/v1/datasets/download/zahinawosaf/forex-tick-data 
 
 unzip parquet/forex-tick-data.zip 
 ```
@@ -131,6 +131,7 @@ file
 Creating the columns that will act as our virtual columns, using the filename and the month:
 
 ```q
+virt:pq each files`file;
 part:update month:2004.01m+til count files from files;
 10#part
 ```
