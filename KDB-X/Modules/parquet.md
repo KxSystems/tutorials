@@ -17,10 +17,11 @@ This tutorial outlines how to integrate KDB-X with tables in Parquet format on d
 Requires KDB-X to be installed, you can sign up [here](https://developer.kx.com/products/kdb-x/install). For full install instructions see: [KDB-X Install](https://docs.kx.com/public-preview/kdb-x/Get_Started/kdb-x-install.htm).
 2. Download the dataset from [Kaggle](https://www.kaggle.com/datasets/zahinawosaf/forex-tick-data) and extract the files
 ```
-#!/bin/bash 
+#!/bin/bash
+mkdir -p parquet
 curl -L -o ~/parquet/forex-tick-data.zip https://www.kaggle.com/api/v1/datasets/download/zahinawosaf/forex-tick-data 
 
-unzip parquet/forex-tick-data.zip 
+unzip parquet/forex-tick-data.zip -d parquet 
 ```
 
 Now let's find the data we just downloaded from Kaggle:
