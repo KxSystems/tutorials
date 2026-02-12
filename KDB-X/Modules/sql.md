@@ -7,9 +7,9 @@ This tutorial will walk through some examples of how to use SQL to interact with
 
 ## 1. Prerequisites
 
-View the [KDB-X Docs](https://docs.kx.com/public-preview/kdb-x/home.htm) for full details on KDB-X and KDB-X Python.
+View the [KDB-X Docs](https://code.kx.com/kdb-x/index.html) for full details on KDB-X and KDB-X Python.
 
-1. Requires KDB-X to be installed, you can sign up [here](https://developer.kx.com/products/kdb-x/install). For full install instructions see: [KDB-X Install](https://docs.kx.com/public-preview/kdb-x/Get_Started/kdb-x-install.htm).
+1. Requires KDB-X to be installed, you can sign up [here](https://developer.kx.com/products/kdb-x/install). For full install instructions see: [KDB-X Install](https://code.kx.com/kdb-x/get_started/kdb-x-install.html).
 2. Ensure you have the necessary dataset
 
 ## 2. Loading and Preparing the Data
@@ -297,4 +297,4 @@ gala                   fruit     apples               kg   0.79       0.68      
 
 By supporting SQL queries directly in the q environment, KDB-X empowers analysts and developers to leverage existing SQL expertise while taking advantage of kdb+’s efficiency and expressiveness.
 
-To learn more about KDB-X modules, visit [KDB-X Module Management](https://docs.kx.com/latest/kdb-x/integrations/module-management.htm).
+To learn more about KDB-X modules, visit [KDB-X Module Management](https://code.kx.com/kdb-x/modules/module-framework/overview.html).

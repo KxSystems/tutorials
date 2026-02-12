@@ -17,7 +17,7 @@ This tutorial demonstrates how to work with KDB-X's object storage module (`objs
 
 **Resources**
 
-- [Object Storage Documentation](https://docs.kx.com/latest/kdb-x/integrations/object_storage.htm)
+- [Object Storage Documentation](https://code.kx.com/kdb-x/modules/objstor/overview.html)
 - [KDB-X Developer Center](https://developer.kx.com)
 
 **Prerequisites:**

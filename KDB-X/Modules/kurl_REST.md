@@ -3,6 +3,7 @@
 ## The Journey from Cloud Storage to Production API
 
 In this tutorial, we'll build a complete data pipeline:
+
 1. 🌐 Fetch data from public APIs using **KURL**
 2. ☁️ Upload market data to Google Cloud Storage
 3. 📥 Download and parse CSV data into KDB-X tables
@@ -10,16 +11,19 @@ In this tutorial, we'll build a complete data pipeline:
 5. 🧪 Test our APIs with real requests
 
 **What you'll learn:**
+
 - How to use KURL for HTTP requests (public and authenticated)
 - Working with GCP buckets using OAuth2 authentication
 - Creating RESTful APIs that expose KDB-X functions
 
 **See the docs:**
-- [kurl](https://docs.kx.com/latest/kdb-x/integrations/kurl.htm)
-- [REST](https://docs.kx.com/latest/kdb-x/integrations/rest.htm)
+
+- [kurl](https://code.kx.com/kdb-x/modules/kurl/introduction.html)
+- [REST](https://code.kx.com/kdb-x/modules/rest-server/overview.html)
 
 **Prerequisites:**
-- KDB-X installed - https://developer.kx.com/products/kdb-x/install
+
+- KDB-X installed - <https://developer.kx.com/products/kdb-x/install>
 - Download the [OHLC.csv file](https://github.com/KxSystems/tutorials/blob/main/KDB-X/Modules/ai-libs/src/OHLC.csv) (stock market data) to your working directory
 - [gcloud SDK CLI](https://docs.cloud.google.com/sdk/docs/install) installed with GCP account and authentication configured, and a cloud bucket created
 
@@ -28,8 +32,11 @@ Note that this tutorial leverages GCP, but Kurl & REST are also compatible with 
 Let's begin! 🎯
 
 ---
+
 ## Part 0: Start KDB-X
+
 **After installing KDB-X, in your terminal, run:**
+
 ```bash
 q
 ```
@@ -57,7 +64,9 @@ censusData:.j.k last censusResp;
 show "First 5 states with population data:";
 show 5#censusData;
 ```
+
 Output:
+
 ```
 "NAME"          "P1_001N"  "state"
 "Pennsylvania"  "13002700" "42"
@@ -91,12 +100,14 @@ Now let's level up! We'll interact with **private** cloud storage using OAuth2 a
 First, we need to register our GCP credentials with KURL. This tells KURL to automatically add authentication headers to requests going to `*.googleapis.com`.
 
 **Exit q session with ``\\`` and In your terminal, run:**
+
 ```bash
 gcloud init
 export GCP_TOKEN=$(gcloud auth print-access-token)
 ```
 
 **Then reenter a q session with ``q``, and in q:**
+
 ```q
 // load the kurl module
 .kurl:use`kx.kurl
@@ -199,6 +210,7 @@ csvData:last resp;
 
 show "Size: ",string count csvData;
 ```
+
 Output: `Size: 73286`
 
 ### 🔄 Parse CSV to KDB-X Table
@@ -222,7 +234,9 @@ show "";
 show "First 5 rows:";
 show 5#t;
 ```
+
 Output:
+
 ```
 date       sym   company                          close  volume  open   high     low      x
 -------------------------------------------------------------------------------------------
@@ -232,6 +246,7 @@ date       sym   company                          close  volume  open   high    
 2025.04.01 HON   Honeywell International Inc      213.45 2563812 211.11 213.63   209.6804
 2025.04.01 HSHIP Himalaya Shipping Ltd            5.45   104627  5.48   5.52     5.4
 ```
+
 ---
 
 ## Part 7: Data Exploration
@@ -333,7 +348,6 @@ These functions will process API requests and return data.
 .api.getPriceHistory:{[x]symbol:x[`arg;`sym];startDate:x[`arg;`startDate];endDate:x[`arg;`endDate]; select date, open, high, low, close, volume from t where sym=symbol, date within (startDate;endDate)};
 ```
 
-
 ---
 
 ## Part 10: Register API Endpoints
@@ -341,6 +355,7 @@ These functions will process API requests and return data.
 Now we map URL paths to our handler functions.
 
 **Endpoint Registration Syntax:**
+
 ```q
 .rest.register[
     method;        // `get, `post, etc.
@@ -403,7 +418,7 @@ show "  GET /history?sym=AXON&startDate=2025.01.01&endDate=2025.03.31";
 
 ## Part 12: Testing Our API
 
-Time to test our creation! 
+Time to test our creation!
 
 **⚠️ Important:** Run these tests in a **separate q session** to avoid deadlock.
 
@@ -431,6 +446,7 @@ show "Response: ",last resp;
 ```
 
 Expected output:
+
 ```
 Testing health check...
 Status: 200
@@ -448,7 +464,9 @@ symbols:.j.k last resp;
 show "Available symbols:";
 show symbols;
 ```
+
 Expected output:
+
 ```
 sym
 -------
@@ -471,7 +489,9 @@ resp:.kurl.sync("http://localhost:8080/latest"; `GET; ::);
 
 if[200=first resp; show latest:.j.k last resp];
 ```
+
 Expected output:
+
 ```
 sym     date         close
 ---------------------------
@@ -496,6 +516,7 @@ if[200=first resp; show stats:.j.k last resp];
 ```
 
 Expected output:
+
 ```
 sym    date         close  volume
 ---------------------------------
@@ -510,7 +531,9 @@ resp:.kurl.sync("http://localhost:8080/stats?sym=AXON"; `GET; ::);
 
 if[200=first resp;stats:.j.k last resp;show stats;];
 ```
+
 Expected output:
+
 ```
 sym    minPrice maxPrice avgPrice totalVolume  rowCount
 -------------------------------------------------------
@@ -526,7 +549,9 @@ resp:.kurl.sync(url; `GET; ::);
 
 if[200=first resp;history:.j.k last resp;show "First 5 records:";show 5#history;];
 ```
+
 Expected output:
+
 ```
 date         open   high   low      close  volume
 --------------------------------------------------
@@ -536,6 +561,7 @@ date         open   high   low      close  volume
 "2025-03-06" 522.85 526.19 495      499.31 912281
 "2025-03-07" 500    527.94 500      526.4  1277984
 ```
+
 ---
 
 ## Part 13: Testing with curl
@@ -586,15 +612,16 @@ Congratulations! You've built a complete data pipeline:
 5. ✅ Built a RESTful API exposing analytics
 6. ✅ Tested all endpoints with real requests
 
-
 ### 📚 Key Takeaways
 
 **KURL:**
+
 - Simple sync/async HTTP client
 - Supports OAuth2, AWS, Azure authentication
 - Works with any HTTP API
 
 **REST Module:**
+
 - Declarative endpoint registration
 - Automatic parameter parsing and validation
 - Type-safe with q type specifications
