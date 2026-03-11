@@ -1,19 +1,24 @@
-# 🚀 GPU Tutorials
+# 🚀 KDB-X GPU Edition Tutorials
 
 The GPU Edition of KDB-X is a new iteration of KDB-X that ships the `.gpu` namespace as a first-class, production-ready capability.
 Everything q-related is untouched - same syntax, same data model, same table semantics - but the most compute-intensive operations in your stack can now be offloaded to NVIDIA GPUs, keeping data GPU-resident across multiple steps and only returning results to the CPU when you actually need them.
-This tutorial highlights concrete examples where this new module can be leveraged to optimize performance that otherwise can be the source of CPU bottlenecks, accelerating various table and mathematical operations by several ??factors??.
+This folder contains concise, step-by-step tutorials designed to help developers optimize performance that otherwise can be the source of CPU bottlenecks, accelerating various table and mathematical operations.
 
-This folder contains concrete examples to help developers quickly understand how to leverage GPUs to optimize performance that otherwise can be the source of CPU bottlenecks, accelerating various table and mathematical operations by several degrees.
+The GPU module provides a number of APIs allowing users to build KDB-X workloads which can leverage GPU compute for specific operations:
+- Joins: `aj` (asof joins)
+- Sorts and Searches: `iasc`, `asc`, `xasc`, and `bin`
+- Functional `selects` including binary operations, whereclause and group by aggregations
 
-**Important!** Intel-based macOS is not supported at this time.
+KDB-X workloads can be built from existing GPU enabled KDB-X ecosystems.
+Operations can be performed on data resident across both CPU and GPU devices.
+In each of the following tutorials, we explore the APIs used to manage data transfers across devices.
 
 ## 📖 Tutorials
-1️⃣ Accelerating as-of joins
+Accelerating as-of joins
 - Utilize `.gpu.aj` to optimize table joins on a list of columns.
 - xx `.gpu.xto` to map only specific columns to the gpu.
 
-2️⃣ Sorting data in-memory and on-disk
+Sorting data in-memory and on-disk
 - xx `.gpu.iasc` for sorting data in-memory
 - xx `.gpu.xasc` for sorting data on-disk
 

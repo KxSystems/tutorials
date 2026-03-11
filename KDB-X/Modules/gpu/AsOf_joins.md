@@ -36,6 +36,11 @@ Some statistics of various DB sizes with data from 2025.01.02 are below:
 | `large` | A-H| 52 | 4849 | 707 738 295 |
 | `full` | A-Z | 233 | 11155 | 2 313 872 956 |
 
+After generating the HDB and extracting data, launch a q session and load the GPU module:
+```q
+.gpu:use`kx.gpu
+```
+
 ## 3. Performing as-of joins
 
 Now, we can step through an example joining trade and quote data on timestamp, comparing GPU vs. CPU.
@@ -54,13 +59,25 @@ Important to note that:
 - the list of valuees `c` can of length 2 at most
 - if `c` is of length 2, the only attribute supported on c[0] is the grouped attribute ``g#`
 
-To map only specific columns to the gpu use `.gpu.xto`, for example
+Data can be transferred between CPU and GPU as follows:
+```q
+.gpu.to t
+```
+
+To map only specific columns to the gpu, (`time` and `sym` here), use `.gpu.xto`:
 ```q
 .gpu.xto[`time`sym] t
 ```
 
+For asof joins (`aj`):
+- API automatically transfers to and from for CPU resident tables
+- Better performance will be achieved by leaving target columns resident on GPU and using append for updates
+- Limited to x2 columns
+
 ```q
-.gpu:use`gpu
+// can use tables as is that will complete a round trip
+.gpu.aj[`time;trade;quote]      // single col
+.gpu.aj[`sym`time;trade;quote]  // limited to two cols
 ```
 
 ```q
@@ -82,6 +99,19 @@ q:get `q
 \t:5 aj[`sym`time;t;q]
 \t:5 .gpu.aj[`sym`time;t;Q]
 \t:5 .gpu.aj[`sym`time;T;Q]
+```
+
+Putting cols on GPU is much faster as you save the roundtrip - use this with append:
+```q
+q:.gpu.xto[`time`sym;quote]
+t:.gpu.xto[`time`sym;trade]
+.gpu.from .gpu.aj[`sym`time;t;q]
+```
+
+This will also be much faster with the grouped attribute applied ***Test for groupby aggs***
+```q
+q:.gpu.xgroup[enlist`sym;q]
+.gpu.from .gpu.aj[`sym`time;t;q]    / much faster than above
 ```
 
 ## 4. Conclusion
