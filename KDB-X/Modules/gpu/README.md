@@ -56,6 +56,21 @@ Replace `<notebook_name>.ipynb` in the above command with either `sorting.ipynb`
 
 Note: The above command instructs `q` to use a maximum of 48 secondary threads. Modify `QARGS='-s 48'` to use the number of threads you desire.
 
+To run `asOfJoins.ipynb`, we first want to download the associated dataset into a directory before running the Docker container.
+Once this has been downloaded, we need to run the Docker container with this data mounted to a volume.
+This can be done with the following command:
+```bash
+docker run --rm -it \
+  -p 8888:8888 \
+  --gpus all \
+  -e QARGS='-s 48' \
+  -v "$HOME/.kx:/app/.kx" \
+  -v /storage/tier/db:/app/example/db \
+  -v "$(pwd):/app/example" \
+  -v "$(pwd)/example/HDB/data:/app/example/HDB/data" \
+  kdbxgpu asOfJoins.ipynb
+```
+
 #### Queries
 
 Connect to the notebook at `localhost:8888/lab/tree/<notebook_name>.ipynb` and follow the instructions.
