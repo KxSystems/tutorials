@@ -8,6 +8,8 @@ The GPU module provides a number of APIs allowing users to build KDB-X workloads
 - Joins: `aj` (asof joins)
 - Sorts and Searches: `iasc`, `asc`, `xasc`, and `bin`
 - Functional `selects` including binary operations, whereclause and group by aggregations
+**Will need to change this link when the docks are live**
+The full library of examples can be found here: [GPU Examples](https://kxdev.gitlab.io/-/documentation/docs-next/-/jobs/13580876958/artifacts/public/modules/gpu/examples.html)
 
 KDB-X workloads can be built from existing GPU enabled KDB-X ecosystems.
 Operations can be performed on data resident across both CPU and GPU devices.
@@ -15,13 +17,9 @@ In each of the following tutorials, we explore the APIs used to manage data tran
 
 ## 📖 Tutorials
 
-Accelerating as-of joins (`asOf_joins.ipynb`)
-- Utilize `.gpu.aj` to optimize table joins on a list of columns
-- xx `.gpu.xto` to map only specific columns to the gpu
+[Accelerating as-of joins](asOfJoins.ipynb)
 
-Sorting data in-memory and on-disk (`sorting.ipynb`)
-- xx `.gpu.iasc` for sorting data in-memory
-- xx `.gpu.xasc` for sorting data on-disk
+[Sorting data in-memory and on-disk](sorting.ipynb)
 
 ## Running a KDB-X GPU Application
 
@@ -32,6 +30,9 @@ For running a KDB-X CUDA application in a configured environment:
 2. A KDB-X license file stored in `$HOME/.kx`
 3. A `gpu.li64.so` file in `$HOME/.kx/mod/kx`
 
+**Will need to change this link when the docks are live**
+To learn more about the configuration for a KDB-X CUDA environment, read about the GPU Setup here: [GPU Enabled Environment for KDB-X](https://kxdev.gitlab.io/-/documentation/docs-next/-/jobs/13580876958/artifacts/public/modules/gpu/quickstart/gpu-env.html)
+
 ### Building
 
 All commands are run from this current location (`tutorials/KDB-X/Modules/gpu`) unless otherwise specified.
@@ -39,24 +40,25 @@ All commands are run from this current location (`tutorials/KDB-X/Modules/gpu`) 
 Build the image using:
 
 ```
-$ docker build -f Dockerfile -t kdbx-gpu .
+$ docker build -f Dockerfile -t kdbxgpu .
 ```
 
 #### Running
 
-From this repository (within `gpu` folder), run the image using:
+From this repository (within `gpu` folder), run the image and `Sorting.ipynb` notebook using:
 
 ```
-$ docker run --rm -it -p 8888:8888 --gpus all -e QARGS='-s 48' -v $HOME/.kx:/app/.kx -v /storage/tier/db:/app/example/db -v .:/app/example kdbxgpu <notebook_name>.ipynb
+$ docker run --rm -it -p 8888:8888 --gpus all -e QARGS='-s 48' -v $HOME/.kx:/app/.kx -v /storage/tier/db:/app/example/db -v .:/app/example kdbxgpu Sorting.ipynb
 ```
-
-Replace `<notebook_name>.ipynb` in the above command with either `sorting.ipynb` to run the Sorting tutorial, or `asOf_joins.ipynb` to run the AsOf Joins tutorial.
 
 Note: The above command instructs `q` to use a maximum of 48 secondary threads. Modify `QARGS='-s 48'` to use the number of threads you desire.
 
-To run `asOfJoins.ipynb`, we first want to download the associated dataset into a directory before running the Docker container.
-Once this has been downloaded, we need to run the Docker container with this data mounted to a volume.
-This can be done with the following command:
+To run the `asOfJoins.ipynb` notebook, we first need to download the associated dataset into a directory before running the Docker container. Description on this can be found here: [hdbDataGen](docs/hdbDataGen.md)
+
+Once our data has been downloaded and HDB has been created, we want to run the Docker container with this data mounted to a volume so it can be loaded into the asOfJoins notebook.
+
+Keep in mind the directory used to download the data - by default, this will be downloaded to `/src/HDB/tq/zd0_0_0`. If your configured directory differs, replace `"$(pwd)/src/HDB/tq/zd0_0_0/` with the proper directory path.
+Now to run the `asOfJoins.ipynb` notebook on the docker image, execute the following:
 ```bash
 docker run --rm -it \
   -p 8888:8888 \
@@ -65,38 +67,15 @@ docker run --rm -it \
   -v "$HOME/.kx:/app/.kx" \
   -v /storage/tier/db:/app/example/db \
   -v "$(pwd):/app/example" \
-  -v "$(pwd)/example/HDB/data:/app/example/HDB/data" \
+  -v "$(pwd)/src/HDB/tq/zd0_0_0/:/app/example/HDB/data" \
   kdbxgpu asOfJoins.ipynb
 ```
 
 #### Queries
 
-Connect to the notebook at `localhost:8888/lab/tree/<notebook_name>.ipynb` and follow the instructions.
-
-## 🤝 Got a question?
-Want to connect with other developers or get help? Join our Slack community https://kx.com/slack or ask a question on https://forum.kx.com
-
-================================================================================================
-
-## 2. GPU-accelerated sorting
-
-### Full table sort: `.gpu.xasc`
-
-### Index-based sort: `.gpu.iasc`
-
-### On-disk sorting
-
-## 3. Scaling VaR across multiple GPUs
-
-## 4. Matrix Multiplication
-
-## 5. Vector Similarity Searches
-
-## Key Takeaways
-
-- **Interoperability:** Being able to use q with Parquet open file format means users can exchange data with ecosystems such as Spark, Pandas, Arrow etc.
-- **Fast Analytics at Scale:**  Query large Parquet datasets efficiently with virtual tables.
-- **Seamless Integration:** Use q queries directly on Parquet files, alongside in-memory or partitioned tables.
+These notebook can be interacted with in several ways:
+1. Connect to the notebook at `localhost:8888/lab/tree/<notebook_name>.ipynb` and follow the instructions
+2. In VSCode, the Jupyter Notebook file can be pointed directly at `http://127.0.0.1:8888/lab` and code can then be executed directly from the VSCode file
+3. To run via q terminal, connect to the running docker container using `docker exec -it <docker_container_id> /bin/bash` - in this bash terminal, run `q` to start a q session, and all q code could then be executed directly from there
 
 To learn more about KDB-X modules, visit [KDB-X Module Management](https://code.kx.com/kdb-x/modules/module-framework/overview.html).
-
