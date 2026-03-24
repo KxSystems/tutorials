@@ -365,7 +365,7 @@ Congratulations! You have completed the KDB-X Quickstart tutorial.
 In this guide, you learned how to
 - Load the Parquet module using the Module Framework
 - Clean data using q
-- Enrich financial datausing q concepts e.g. an asof join
+- Enrich financial data using q concepts e.g. an asof join
 - Switch between q, SQL and KDB-X Python to analyse data
 - Visualize q data using KDB-X Python and Matplotlib
 - Persist data to a historical database using kdb+ best practices.
