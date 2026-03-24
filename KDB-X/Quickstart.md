@@ -32,7 +32,7 @@ q)([pq]):use`kx.pq;
 
 Read in the parquet data we downloaded. This dataset contains is synthetic data representing trades and quotes   
 ```q
-q)quote: pq `$"tutorials/KDB-X/src/quotes.parquet";
+q)quote: pq `$"KDB-X/src/quotes.parquet";
 q)trade: pq `$"tutorials/KDB-X/src/trades.parquet";
 // convert the parquet tables into q objects  
 q)quote:select from quote;  
@@ -136,7 +136,8 @@ time                          sym  ask   bid   asize bsize spread
 2025.01.06D09:30:00.000000000 AAPL 60.6  60.59 8400  2400  0.01650165 
 2025.01.06D09:30:00.000000000 AAPL 60.58 60.56 3600  6000  0.0330142 
 2025.01.06D09:30:01.000000000 AAPL 60.59 60.57 4800  3000  0.03300875 
-2025.01.06D09:30:01.000000000 AAPL 60.59 60.54 9600  7200  0.08252187 
+2025.01.06D09:30:01.000000000 AAPL 60.59 60.54 9600  7200  0.08252187
+..
 ```
  
 ## Timeseries Joins 
@@ -151,7 +152,8 @@ time                          sym  price size bid   ask
 2025.01.06D09:30:09.000000000 AAPL 60.5  703  60.46 60.5  
 2025.01.06D09:30:09.000000000 AAPL 60.5  5201 60.46 60.5  
 2025.01.06D09:30:09.000000000 AAPL 60.46 1795 60.46 60.5  
-2025.01.06D09:30:10.000000000 AAPL 60.5  2774 60.5  60.53 
+2025.01.06D09:30:10.000000000 AAPL 60.5  2774 60.5  60.53
+..
 ```
 
 If your local machine is struggling to process all of the data, you could join a subset of the tables like this: 
@@ -210,8 +212,8 @@ pykx.Table(pykx.q(' time      sym  price size bid   ask
 Now that we know what the prevailing quote was for each trade, we can work out which direction the trade was in i.e., was it a Buy or Sell?
 We can then aggregate the trades by symbol to find out the number of trades per symbol were a Buy or a Sell.
 ```python
->>> sidestab = conn('0!select count i by side,sym from update side:?[price=bid;`B;`S] from joined').pd() 
->>> print(sidestab) 
+>>> sides = conn('0!select count i by side,sym from joined:update side:?[price=bid;`B;`S] from joined').pd() 
+>>> print(sides) 
    side   sym     x 
 0     B  AAPL  3184 
 1     B  AMZN   519 
@@ -298,16 +300,24 @@ The format of plottable now lends itself to be easily plotted in a bargraph comp
 >>> ax.legend() 
 >>> plt.show()
 ```
-
-image
+![Plotted Graph](src/plottable.png)
 
 
 ## Persisting data into a kdb HDB 
 
 Now we know how to enrich the data to determine which direction the trade was in (Buy or Sell), we can persist this data in a kdb database.
 Back in our q process, we can use the joined table to give a fuller picture than the original trade table. 
-
-q)joined:update side:?[price=bid;`B;`S] from joined;
+```q
+q)joined
+time                          sym  price size bid   ask   side
+--------------------------------------------------------------
+2025.01.06D09:30:00.000000000 AAPL 60.58 1479 60.56 60.58 S
+2025.01.06D09:30:09.000000000 AAPL 60.5  703  60.46 60.5  S
+2025.01.06D09:30:09.000000000 AAPL 60.5  5201 60.46 60.5  S
+2025.01.06D09:30:09.000000000 AAPL 60.46 1795 60.46 60.5  B
+2025.01.06D09:30:10.000000000 AAPL 60.5  2774 60.5  60.53 B
+..
+```
 
 In kdb+ databases, financial data is commonly partitioned by date. Even though we only have 1 day's worth of data in memory, it is still good practice to structure your data like this so that future dates can be added easily. 
 
