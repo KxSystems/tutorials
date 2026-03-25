@@ -364,12 +364,12 @@ side | s
 # Conclusion
 Congratulations! You have completed the KDB-X Quickstart tutorial.
 
-In this guide, you learned how to
-- Load the Parquet module using the Module Framework
-- Clean data using q
-- Enrich financial data using q concepts e.g. an asof join
-- Switch between q, SQL and KDB-X Python to analyse data
-- Visualize q data using KDB-X Python and Matplotlib
+In this guide, you learned how to:
+- Load the Parquet module using the Module Framework.
+- Clean data using q.
+- Enrich financial data using q concepts e.g. an asof join.
+- Switch between q, SQL and KDB-X Python to analyze data.
+- Visualize q data using KDB-X Python and Matplotlib.
 - Persist data to a historical database using kdb+ best practices.
 
 Ready for more? Get hands-on with the q language in [A Brief Introduction to q and KDB-X](https://code.kx.com/kdb-x/learn/brief-introduction.html) or try out the other tutorials on [GitHub](https://github.com/KxSystems/tutorials). 
