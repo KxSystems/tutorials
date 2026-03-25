@@ -181,7 +181,7 @@ We can open a connection to the q session we have running on port 5050:
 
 Once we have our connection open, we can start using KDB-X Python to query the data:
 ```python
->>> qtable = kx.Table(conn('select from joined')) 
+>>> qtable = conn['joined']
 >>> qtable.select()  
 
 pykx.Table(pykx.q(' time      sym  price size bid   ask 
