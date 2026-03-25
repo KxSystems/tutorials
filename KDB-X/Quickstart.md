@@ -114,7 +114,7 @@ spread
 
 ## Querying data in SQL 
 
-Integration with SQL comes out of the box with KDB-X, and all methods of 
+Integration with SQL comes out of the box with KDB-X, supporting a wide range of common SQL features. Explore the [Reference page](https://code.kx.com/kdb-x/modules/sql/reference.html) for full operator and function details. 
 ```q
 q).s.init[] 
 q).s.e"SELECT COUNT(*) FROM quote"
@@ -166,7 +166,9 @@ q)count joined
 104575
 ```
  
-Running `python` in another terminal window, we can do some analysis on our q table using KDB-X Python. We will start by importing some libraries including `pykx`:
+Running `python` in another terminal window, we can do some analysis on our q table using [KDB-X Python](https://code.kx.com/kdb-x/get_started/kdb-x-python-install.html). 
+
+We will start by importing some libraries including `pykx`:
 ```python
 >>> import pandas as pd  
 >>> import pykx as kx
