@@ -25,7 +25,7 @@ q -p 5050
 ```
 This will start a q process on port 5050, which we will use later on to pull our data into a Python session. 
 
-Load the Parquet module with the `use` keyword. For more on how modules are loaded see [here](https://code.kx.com/kdb-x/modules/module-framework/quickstart.html#search-path)
+Load the Parquet module with the `use` keyword. For more on how modules are loaded see [here](https://code.kx.com/kdb-x/modules/module-framework/quickstart.html#search-path).
 ```q
 q)([pq]):use`kx.pq;
 ```
