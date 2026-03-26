@@ -33,7 +33,7 @@ q)([pq]):use`kx.pq;
 Read in the parquet data we downloaded. This dataset contains is synthetic data representing trades and quotes   
 ```q
 q)quote: pq `$"KDB-X/src/quotes.parquet";
-q)trade: pq `$"tutorials/KDB-X/src/trades.parquet";
+q)trade: pq `$"KDB-X/src/trades.parquet";
 // convert the parquet tables into q objects  
 q)quote:select from quote;  
 q)trade:select from trade;
