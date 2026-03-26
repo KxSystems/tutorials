@@ -17,8 +17,9 @@ Make sure you have [KDB-X](https://developer.kx.com/products/kdb-x/install) inst
 ## 📁 Structure 
 
 - **KDB-X/**
-  - `Modules/ai-libs/` – Integrate KDB-X with AI applications.
+  - `Modules/` – Integrate KDB-X with libraries using the Module Framework.
   - `Python/` – Historical time series analysis in Python.
+  - `code-challenges/survival-code-challenge` - Five-step code challenge showcasing key features of KDB-X.
   - `q/` – Time series and event processing scripts in q.
 
 ## 🤝 Got a question?

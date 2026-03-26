@@ -29,7 +29,7 @@ Load the dataset into a q table:
 // The \z system command sets the format for date parsing 
 \z 1
 
-fvprices:("SSSDSF"; enlist ",") 0: `$":/src/wholesaleproduceprices.csv"
+fvprices:("SSSDSF"; enlist ",") 0: `$":src/wholesaleproduceprices.csv"
 ```
 In the above:
 - `0:` is used to read the csv file
