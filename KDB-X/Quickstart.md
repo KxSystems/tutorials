@@ -173,7 +173,10 @@ We will start by importing some libraries including `pykx`:
 >>> import pandas as pd  
 >>> import pykx as kx
 
-Welcome to KDB-X Community Edition! For Community support, please visit https://kx.com/slack Tutorials can be found at https://github.com/KxSystems/tutorials Ready to go beyond the Community Edition? Email preview@kx.com 
+Welcome to KDB-X Community Edition!
+For Community support, please visit https://kx.com/slack
+Tutorials can be found at https://github.com/KxSystems/tutorials
+Ready to go beyond the Community Edition? Email preview@kx.com 
 ```
 
 We can open a connection to the q session we have running on port 5050:
