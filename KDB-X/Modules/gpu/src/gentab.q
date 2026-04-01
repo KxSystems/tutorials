@@ -1,49 +1,49 @@
 // This file generates dummy data for sorting
 
-orders:flip (!) . flip (
-	(`orderId; 		`int$());
-	(`productId;		`int$());
-	(`time;		`long$());
-	(`pubTime;		`long$());
-	(`accId;		`short$());
-	(`analyticId;		`short$());
-	(`analyticDataType;	`char$());
-	(`doubleValue;		`float$());
-	(`stringValue;		`symbol$());
-	(`processPre;	());
-	(`processSuf;	());
-	(`orderKey;		`guid$())
- );
+orders:([] orderId: `int$();
+          productId:`int$();
+          time: `long$();
+          pubTime: `long$();
+          accId: `short$();
+          analyticId: `short$();
+          analyticDataType: `char$();
+          doubleValue: `float$();
+          stringValue: `symbol$();
+          processPre: ();
+          processSuf: ();
+          orderKey: `guid$()
+      );
 
 / data template
-dt:()!()
-dt[`orderId]:`int$1000 + 9000?9000;
-dt[`productId]:`int$1000000+1000+9000?9000;
-dt[`time]:enlist 1769423038687723902;
-dt[`pubTime]:enlist 1769423038687723902;
-dt[`accId]:55761 57576 75578;
-dt[`analyticId]:162 201;
-dt[`analyticDataType]:"DF";
-/ no double val
-dt[`stringValue]:`FNGS`VOD`BARC`GOOG`AAPL;
-dt[`processPre]:2#enlist "ABC_123VRYAN3B";
-dt[`processSuf]:2#enlist "422VRYAN3B";
-dt[`orderKey]:2?0Ng;
+dt:([
+      orderId: `int$1000 + 9000?9000;
+      productId:`int$1000000+1000+9000?9000;
+      time:enlist 1769423038687723902;
+      pubTime:enlist 1769423038687723902;
+      accId:55761 57576 75578;
+      analyticId:162 201;
+      analyticDataType:"DF";
+      / no double val
+      stringValue:`FNGS`VOD`BARC`GOOG`AAPL;
+      processPre:2#enlist "ABC_123VRYAN3B";
+      processSuf:2#enlist "422VRYAN3B";
+      orderKey:2?0Ng
+      ]);
 
-datagen:(!) . flip (
-       (`orderId;              {x?dt[`orderId]});
-       (`productId;            {x?dt[`productId]});
-       (`time;            {dt[`time][0]+til x});
-       (`pubTime;          {dt[`pubTime][0]+til x});
-       (`accId;            {x?dt[`accId]});
-       (`analyticId;           {x?dt[`analyticId]});
-       (`analyticDataType;     {x?dt[`analyticDataType]});
-       (`doubleValue;          {x?10});
-       (`stringValue;          {string x?dt[`stringValue]});
-       (`processPre;        {x?dt[`processPre]});
-       (`processSuf;        {x?dt[`processSuf]});
-       (`orderKey;             {x?dt[`orderKey]})
- );
+datagen:([
+      orderId: {x?dt[`orderId]};
+      productId: {x?dt[`productId]};
+      time: {dt[`time][0]+til x};
+      pubTime:{dt[`pubTime][0]+til x};
+      accId: {x?dt[`accId]};
+      analyticId: {x?dt[`analyticId]};
+      analyticDataType: {x?dt[`analyticDataType]};
+      doubleValue: {x?10};
+      stringValue: {string x?dt[`stringValue]};
+      processPre: {x?dt[`processPre]};
+      processSuf: {x?dt[`processSuf]};
+      orderKey: {x?dt[`orderKey]}
+      ]);
 
 / dir: Directory to save in and 
 / n:   Number for records
@@ -65,5 +65,4 @@ gentabchunked:{[dbtab;n; batchSize]
        z upsert flip c!(datagen each c:cols orders)@\:y;
       }[;batchSize;dbtab] each til n div batchSize
       }
-
 

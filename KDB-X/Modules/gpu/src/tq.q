@@ -7,9 +7,16 @@
 //    * code quality improvements
 
 
-\l log.q
+STDOUT:-1
+$[@[{x in key .comkxic.libs}; `qlog; 0b]; [
+  id:.com_kx_log.init[`:fd://stdout; ()];
+  .qlog: .com_kx_log.new[`nano; ()]]; [
+  .qlog.debug: {[m:`C] STDOUT ssr[-6_5_string .z.p; "D"; " "], " ", m;};
+  .qlog.info:  {[m:`C] STDOUT ssr[-6_5_string .z.p; "D"; " "], " ", m;};
+  .qlog.warn:  {[m:`C] STDOUT ssr[-6_5_string .z.p; "D"; " "], " ", "\033[43;37m", m ,"\033[0m";};
+  .qlog.error: {[m:`C] STDOUT ssr[-6_5_string .z.p; "D"; " "], " ", "\033[41;37m", m ,"\033[0m";}]];
 
-if[(4.1>.z.K); .qlog.error "kdb+ 4.1 is required";exit 1];
+if[(5.0>.z.K); .qlog.error "KDB-X (kdb+ 5.0) is required";exit 1];
 ko:key o:first each .Q.opt .z.x
 if[not all `src`dst in ko; 
   .qlog.error ">q ",(string .z.f)," -src SRC -dst DST [-letter START-END]";exit 2];
