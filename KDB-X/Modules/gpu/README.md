@@ -1,6 +1,9 @@
 # 🚀 KDB-X GPU Acceleration Tutorials
 
 GPU Acceleration is a new offering of KDB-X that ships the `gpu` module as a first-class, production-ready capability.
+
+**Note: this requires an additional GPU license - please email devrel@kx.com for an evaluation request if you don't already own one**
+
 This folder contains concise, step-by-step tutorials designed to help developers optimize performance that otherwise can be the source of CPU bottlenecks, accelerating various table and analytical operations.
 
 The [GPU module](https://code.kx.com/kdb-x/modules/gpu/introduction.html) provides a number of APIs allowing users to build KDB-X workloads which can leverage GPU computing for specific operations:
