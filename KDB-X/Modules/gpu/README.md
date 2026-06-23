@@ -17,7 +17,7 @@ The full API reference can be found on the [GPU reference card](https://code.kx.
 
 [Accelerating as-of joins](asOfJoins.ipynb)
 
-[Sorting data in-memory and on-disk](sorting.ipynb)
+[Sorting data in-memory and on-disk](Sorting.ipynb)
 
 ## Running a KDB-X GPU Application
 
