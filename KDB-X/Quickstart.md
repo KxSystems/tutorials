@@ -13,7 +13,7 @@ curl -sLO --oauth2-bearer your-license-key-here
 We will also install the KDB-X Python API and some pre-requisites:
 ```bash
 pip install --upgrade pip 
-pip install --upgrade --pre pykx 
+pip install --upgrade pykx 
 python -c "import pykx as kx; kx.install_into_QHOME()" 
 pip install matplotlib
 git clone https://github.com/KxSystems/tutorials.git
