@@ -17,7 +17,7 @@ This folder contains concise, step-by-step tutorials designed to help developers
 
 3️⃣ Combining Structured and Unstructured Data
 -  Discover how to combine structured (Yahoo finance feed) and unstructured (SENS announcements) data
-- Fetching Yahoo Finance ticker data using PyKX and creating embeddings with PyTorch on SENS data
+- Fetching Yahoo Finance ticker data using KDB-X Python and creating embeddings with PyTorch on SENS data
 - Integrating time series analysis with TSS and nearest neighbor searches with HNSW
 
 4️⃣ Fuzzy Filtering
