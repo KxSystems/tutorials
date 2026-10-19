@@ -14,7 +14,7 @@ ENV PATH="/venv/bin:$PATH"
 RUN python3 -m venv /venv \
     && pip install --upgrade pip \
     && pip install jupyter matplotlib \
-    && pip install --upgrade --pre pykx
+    && pip install --upgrade pykx
 
 ENV PATH="/app/.kx/bin:$PATH"
 ENV QLIC="/app/.kx"

@@ -168,7 +168,7 @@ q)count joined
  
 Running `python` in another terminal window, we can do some analysis on our q table using [KDB-X Python](https://code.kx.com/kdb-x/get_started/kdb-x-python-install.html). 
 
-We will start by importing some libraries including `pykx`:
+We will start by importing some libraries including KDB-X Python (`pykx`):
 ```python
 >>> import pandas as pd  
 >>> import pykx as kx
